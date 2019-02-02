@@ -3,6 +3,8 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using System;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace ChavahDbImporter
 {
@@ -10,6 +12,8 @@ namespace ChavahDbImporter
     {
         public static async Task Main(string[] args)
         {
+
+            Console.WriteLine(args);
 
             var host = new HostBuilder()
                  .ConfigureHostConfiguration(configHost =>
@@ -33,6 +37,10 @@ namespace ChavahDbImporter
                      configLogging.AddConfiguration(hostContext.Configuration.GetSection("Logging"));
                      configLogging.AddConsole();
                      configLogging.AddDebug();
+                 })
+                 .ConfigureServices(services =>
+                 {
+                     services.AddSingleton<IHostedService, RavenDbService>();
                  })
                  .UseConsoleLifetime()
                  .Build();

@@ -13,19 +13,28 @@ FROM build AS publish
 RUN dotnet publish ChavahDbImporter.csproj -c Release -r ubuntu.16.04-x64 -o /app
 
 FROM ravendb/ravendb AS final
-
 EXPOSE 8080 38888 161
-ENV RAVEN_Setup_Mode=None
-ENV RAVEN_Security_UnsecuredAccessAllowed=PublicNetwork
+
+ENV RAVEN_Setup_Mode='None'
+ENV RAVEN_Security_UnsecuredAccessAllowed='Local'
 ENV RAVEN_License_Eula_Accepted=true
 ENV RAVEN_ARGS="--log-to-console"
 
+COPY src/ChavahDbImporter/healthcheck.sh  src/ChavahDbImporter/run-raven.sh /opt/RavenDB/
 HEALTHCHECK --start-period=60s CMD /opt/RavenDB/healthcheck.sh
+RUN chmod +x /opt/RavenDB/run-raven.sh
+
 WORKDIR /opt/RavenDB/Server
 VOLUME /opt/RavenDB/Server/RavenData /opt/RavenDB/config
-#CMD /opt/RavenDB/run-raven.sh
 
-#WORKDIR /app
-COPY --from=publish /app ./Importer
-RUN chmod 777 ./Importer/ChavahDbImporter
-CMD [ "sh", "-c", "/opt/RavenDB/run-raven.sh && ./Importer/ChavahDbImporter" ] 
+COPY --from=publish /app /opt/app
+RUN chmod +x /opt/app/ChavahDbImporter
+
+
+# CMD /opt/RavenDB/run-raven.sh
+# ENTRYPOINT [ "sh", "-c", "/opt/RavenDB/run-raven.sh && ./Importer/ChavahDbImporter" ] 
+
+# debug only
+# ENTRYPOINT ["tail", "-f", "/dev/null"]
+
+CMD [ "/opt/app/ChavahDbImporter"] 
