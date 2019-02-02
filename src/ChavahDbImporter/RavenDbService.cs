@@ -25,12 +25,13 @@ namespace ChavahDbImporter
             {
                 _totalCount += 1;
 
-                if (_totalCount == 10){
+                if (_totalCount == 5){
                     _isCompleted = true;
                 }
                 _logger.LogInformation("Running...");
+
+                await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
             }
-            await Task.Delay(TimeSpan.FromSeconds(15), stoppingToken);
         }
     }
 }

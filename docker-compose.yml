@@ -6,3 +6,5 @@ services:
     build:
       context: .
       dockerfile: src/ChavahDbImporter/Dockerfile
+    ports:
+      - "8080:8080"

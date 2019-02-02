@@ -10,5 +10,7 @@ if [ ! -z "$RAVEN_ARGS" ]; then
 	COMMAND="$COMMAND ${RAVEN_ARGS}"
 fi
 
+# sleep 10s
+
 eval $COMMAND
 exit $?
