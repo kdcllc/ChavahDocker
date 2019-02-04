@@ -20,26 +20,26 @@ ENV RAVEN_Security_UnsecuredAccessAllowed='Local'
 ENV RAVEN_License_Eula_Accepted=true
 ENV RAVEN_ARGS="--log-to-console"
 
-COPY src/ChavahDbImporter/healthchec2.sh /opt/RavenDB/
-
-HEALTHCHECK --start-period=60s CMD /opt/RavenDB/healthcheck2.sh
+COPY src/ChavahDbImporter/hc.sh /opt/app/hc.sh
+RUN chmod +x /opt/app/hc.sh
+HEALTHCHECK --start-period=60s CMD /opt/app/hc.sh
 
 WORKDIR /opt/RavenDB/Server
 VOLUME /opt/RavenDB/Server/RavenData /opt/RavenDB/config
 
-COPY src/ChavahDbImporter/run-raven2.sh /opt/RavenDB/Server/
+#WORKDIR /opt/app
+COPY src/ChavahDbImporter/start.sh /opt/app/start.sh
+RUN chmod +x /opt/app/start.sh
 
 COPY --from=publish /app /opt/app
 RUN chmod +x /opt/app/ChavahDbImporter
 
-RUN chmod +x /opt/RavenDB/healthchec2.sh
-RUN chmod +x /opt/RavenDB/Server/run-raven2.sh
-
+CMD [ "/opt/app/start.sh" ]
 # CMD ./run-raven2.sh
-# CMD /opt/RavenDB/run-raven.sh
-ENTRYPOINT [ "sh", "-c", "/opt/RavenDB/run-raven.sh && /opt/app/ChavahDbImporter" ] 
+# ENTRYPOINT [ "sh","-c","opt/app/start.sh" ]
+# ENTRYPOINT [ "sh", "-c", "/opt/RavenDB/run-raven.sh && /opt/app/ChavahDbImporter" ] 
 
 # debug only
 # ENTRYPOINT ["tail", "-f", "/dev/null"]
 
-# CMD [ "/opt/app/ChavahDbImporter"] 
+#CMD [ "/opt/app/ChavahDbImporter"] 

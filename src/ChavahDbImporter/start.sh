@@ -1,4 +1,7 @@
 #!/bin/bash
+#exec '/opt/app/ChavahDbImporter'
+
+echo 'Launch Raven.Server'
 COMMAND="./Raven.Server"
 export RAVEN_ServerUrl="http://$(hostname):8080"
 
@@ -10,7 +13,6 @@ if [ ! -z "$RAVEN_ARGS" ]; then
 	COMMAND="$COMMAND ${RAVEN_ARGS}"
 fi
 
-# sleep 10s
+eval $COMMAND & '/opt/app/ChavahDbImporter'
 
-eval $COMMAND
 exit $?
