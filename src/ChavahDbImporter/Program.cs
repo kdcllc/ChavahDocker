@@ -5,6 +5,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace ChavahDbImporter
 {
@@ -12,7 +13,6 @@ namespace ChavahDbImporter
     {
         public static async Task Main(string[] args)
         {
-
             Console.WriteLine(args);
 
             var host = new HostBuilder()
@@ -31,6 +31,8 @@ namespace ChavahDbImporter
                          optional: true);
                      configApp.AddEnvironmentVariables(prefix: "PREFIX_");
                      configApp.AddCommandLine(args);
+
+                     // hostContext.HostingEnvironment.ContentRootPath = Directory.GetCurrentDirectory();
                  })
                  .ConfigureLogging((hostContext, configLogging) =>
                  {
@@ -38,8 +40,10 @@ namespace ChavahDbImporter
                      configLogging.AddConsole();
                      configLogging.AddDebug();
                  })
-                 .ConfigureServices(services =>
+                 .ConfigureServices((hostingContext,services) =>
                  {
+                     services.Configure<DatabaseSettings>(hostingContext.Configuration.GetSection("Database"));
+                     services.AddSingleton(x => x.GetRequiredService<IOptions<DatabaseSettings>>().Value);
                      services.AddSingleton<IHostedService, RavenDbService>();
                  })
                  .UseConsoleLifetime()
@@ -49,11 +53,17 @@ namespace ChavahDbImporter
 
             using (host)
             {
+                var logger = srv.GetRequiredService<ILoggerFactory>().CreateLogger(nameof(Program));
+
+                logger.LogInformation("Start {name}", nameof(ChavahDbImporter));
+
                 await host.RunAsync();
+                logger.LogInformation("Running {name}", nameof(ChavahDbImporter));
 
                 await host.WaitForShutdownAsync();
+
+                logger.LogInformation("Shutdown {name}", nameof(ChavahDbImporter));
             }
         }
-
     }
 }

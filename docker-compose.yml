@@ -2,7 +2,7 @@ version: '3.4'
 
 services:
   chavahdbimporter:
-    image: ${DOCKER_REGISTRY-}chavahdbimporter
+    image: kdcllc/chavahdb
     build:
       context: .
       dockerfile: src/ChavahDbImporter/Dockerfile
